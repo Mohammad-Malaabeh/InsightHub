@@ -52,3 +52,19 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# -------------------------------
+# Task Model
+# -------------------------------
+class Task(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    completed = models.BooleanField(default=False)
+    attachment = models.FileField(upload_to='attachments/', blank=True, null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
+    assignee = models.ForeignKey('User', null=True, blank=True, on_delete=models.SET_NULL, related_name='assigned_tasks')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

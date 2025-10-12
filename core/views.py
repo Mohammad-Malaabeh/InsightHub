@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Project, Task, Post, Tag, User
-from .forms import ProjectForm, TaskForm
+from .forms import ProjectForm, TaskForm, PostForm
 
 # --- dashboard view ---
 def dashboard(request):
@@ -101,3 +101,54 @@ def task_delete(request, project_id, task_id):
     task.delete()
     return redirect('task_list', project_id=project_id)
 
+# --- Post Views ---
+def post_list(request):
+    posts = Post.objects.all().order_by('-created_at')
+    return render(request, 'core/post_list.html', {'posts': posts})
+
+def post_create(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+
+            default_owner = User.objects.first()
+            post.owner = default_owner
+            post.save()
+
+            tags_text = form.cleaned_data.get('tags', '')
+            tag_names = [t.strip() for t in tags_text.split(',') if t.strip()]
+            for name in tag_names:
+                tag_obj, _ = Tag.objects.get_or_create(name=name)
+                post.tags.add(tag_obj)
+
+            return redirect('post_list')
+    else:
+        form = PostForm()
+    return render(request, 'core/post_form.html', {'form': form})
+
+def post_update(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('post_list')
+    else:
+        form = PostForm(instance=post)
+    return render(request, 'core/post_form.html', {'form': form})
+
+def post_delete(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.delete()
+    return redirect('post_list')
+
+def like_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    u = User.objects.first()
+    if u:
+        if u in post.liked_by.all():
+            post.liked_by.remove(u)
+        else:
+            post.liked_by.add(u)
+    return redirect('post_list')

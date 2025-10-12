@@ -22,5 +22,11 @@ urlpatterns = [
     path('tasks/', views.all_tasks, name='all_tasks'),
     path('projects/<int:project_id>/tasks/<int:task_id>/edit/', views.task_update, name='task_update'),
     path('projects/<int:project_id>/tasks/<int:task_id>/delete/', views.task_delete, name='task_delete'),
-    
+
+    # Posts
+    path('posts/', views.post_list, name='post_list'),
+    path('posts/create/', views.post_create, name='post_create'),
+    path('posts/<int:post_id>/edit/', views.post_update, name='post_update'),
+    path('posts/<int:post_id>/delete/', views.post_delete, name='post_delete'),
+    path('posts/<int:post_id>/like/', views.like_post, name='like_post'),
 ]

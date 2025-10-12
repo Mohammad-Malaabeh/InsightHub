@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="col-md-5 mx-auto">
+  <div class="card shadow-sm p-4 text-center">
+    <h4>Delete Post</h4>
+    <p>Are you sure you want to delete "<strong>{{ post.title }}</strong>"?</p>
+    <form method="POST">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger w-100">Yes, Delete</button>
+      <a href="{% url 'post_list' %}" class="btn btn-secondary w-100 mt-2">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

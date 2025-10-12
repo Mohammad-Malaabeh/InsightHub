@@ -2,6 +2,27 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Project, Task, Post, Tag, User
 from .forms import SignUpForm, ProjectForm, TaskForm, PostForm, LoginForm
 
+# --- dashboard view ---
+def dashboard(request):
+    context = {
+        'project_count': Project.objects.count(),
+        'task_count': Task.objects.count(),
+        'post_count': Post.objects.count(),
+        'all_projects': Project.objects.count(),
+        'all_users': User.objects.count(),
+    }
+    return render(request, 'core/dashboard.html', context)
+
+
+# --- manager and admin views ---
+def manager_reports(request):
+    projects = Project.objects.prefetch_related('tasks').all()
+    tasks = Task.objects.select_related('project').all()
+    return render(request, 'core/manager_reports.html', {'projects': projects, 'tasks': tasks})
+
+def manage_users(request):
+    users = User.objects.all()
+    return render(request, 'core/manage_users.html', {'users': users})
 
 
 # --- Project Views ---

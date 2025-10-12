@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Manager Reports</h2>
+
+  <h4>Projects Overview</h4>
+  <ul>
+    {% for project in projects %}
+      <li>{{ project.name }} - {{ project.tasks.count }} tasks</li>
+    {% empty %}
+      <li>No projects found.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>All Tasks</h4>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Project</th>
+        <th>Task</th>
+        <th>Status</th>
+        <th>Assigned To</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in tasks %}
+      <tr>
+        <td>{{ task.project.name }}</td>
+        <td>{{ task.title }}</td>
+        <td>{% if task.completed %}Done{% else %}Pending{% endif %}</td>
+        <td>{{ task.project.owner.username }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4">No tasks found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

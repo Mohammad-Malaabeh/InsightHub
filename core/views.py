@@ -21,11 +21,11 @@ def login_view(request):
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            return redirect('project_list')
+            return redirect('dashboard')
     else:
         form = LoginForm()
     
-    return render(request, 'core/dashboard.html', {'form': form})
+    return render(request, 'core/login.html', {'form': form})
 
 def logout_view(request):
     logout(request)

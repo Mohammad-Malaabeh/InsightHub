@@ -44,7 +44,8 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'core.User'
-
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
 
 
 MIDDLEWARE = [

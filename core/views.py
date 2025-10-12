@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Project, Task, Post, Tag, User
-from .forms import SignUpForm, ProjectForm, TaskForm, PostForm, LoginForm
+from .forms import ProjectForm, TaskForm
 
 # --- dashboard view ---
 def dashboard(request):
@@ -59,3 +59,45 @@ def project_delete(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     project.delete()
     return redirect('project_list')
+
+# --- Task Views ---
+def task_list(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    tasks = project.tasks.all()
+    return render(request, 'core/task_list.html', {'project': project, 'tasks': tasks})
+
+def all_tasks(request):
+    projects = Project.objects.all().prefetch_related('tasks')
+    return render(request, 'core/all_tasks.html', {'projects': projects})
+
+def task_create(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    if request.method == 'POST':
+        form = TaskForm(request.POST, request.FILES)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.project = project
+            task.save()
+            return redirect('task_list', project_id=project_id)
+    else:
+        form = TaskForm()
+    return render(request, 'core/task_form.html', {'form': form, 'project': project})
+
+def task_update(request, project_id, task_id):
+    project = get_object_or_404(Project, id=project_id)
+    task = get_object_or_404(Task, id=task_id, project=project)
+    if request.method == 'POST':
+        form = TaskForm(request.POST, request.FILES, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('task_list', project_id=project_id)
+    else:
+        form = TaskForm(instance=task)
+    return render(request, 'core/task_form.html', {'form': form, 'project': project})
+
+def task_delete(request, project_id, task_id):
+    project = get_object_or_404(Project, id=project_id)
+    task = get_object_or_404(Task, id=task_id, project=project)
+    task.delete()
+    return redirect('task_list', project_id=project_id)
+

@@ -29,4 +29,11 @@ urlpatterns = [
     path('posts/<int:post_id>/edit/', views.post_update, name='post_update'),
     path('posts/<int:post_id>/delete/', views.post_delete, name='post_delete'),
     path('posts/<int:post_id>/like/', views.like_post, name='like_post'),
+
+    # Auth
+    path('signup/', views.signup_view, name='signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+
+
 ]

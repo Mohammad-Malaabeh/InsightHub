@@ -1,6 +1,36 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout
 from .models import Project, Task, Post, Tag, User
-from .forms import ProjectForm, TaskForm, PostForm
+from .forms import ProjectForm, TaskForm, PostForm, SignUpForm, LoginForm
+
+
+#--- Authentication imports ---
+def signup_view(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('project_list')
+    else:
+        form = SignUpForm()
+    return render(request, 'core/signup.html', {'form': form})
+
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
+            return redirect('project_list')
+    else:
+        form = LoginForm()
+    
+    return render(request, 'core/dashboard.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
 
 # --- dashboard view ---
 def dashboard(request):

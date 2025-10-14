@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from .decorators import admin_required, manager_or_admin_required
 from .models import Project, Task, Post, Tag, User
-from .forms import ProjectForm, TaskForm, PostForm, SignUpForm, LoginForm
+from .forms import ProjectForm, TaskForm, PostForm, SignUpForm, LoginForm, ProfileForm
 
 #--- Authentication imports ---
 def signup_view(request):
@@ -210,3 +210,22 @@ def like_post(request, post_id):
         else:
             post.liked_by.add(u)
     return redirect('post_list')
+
+@login_required
+def profile_view(request):
+    user = request.user
+    if request.method == "POST":
+        form = ProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect("profile")
+    else:
+        form = ProfileForm(instance=user)
+
+    context = {
+        "form": form,
+        "role": user.role,
+        "date_joined": getattr(user, "date_joined", None),
+        "created_at": getattr(user, "created_at", None),
+    }
+    return render(request, "core/profile.html", context)

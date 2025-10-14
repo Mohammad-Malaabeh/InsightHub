@@ -92,3 +92,16 @@ class PostForm(forms.ModelForm):
                 tag_obj, created = Tag.objects.get_or_create(name=name)
                 instance.tags.add(tag_obj)
         return instance
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "email"]
+        widgets = {
+            "username": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Username"}
+            ),
+            "email": forms.EmailInput(
+                attrs={"class": "form-control", "placeholder": "Email"}
+            ),
+        }

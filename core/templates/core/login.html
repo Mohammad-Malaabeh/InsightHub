@@ -1,20 +1,24 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div class="col-md-5 mx-auto">
-  <div class="card shadow-sm p-4">
-    <h4 class="mb-3 text-center">Login</h4>
-    <form method="POST">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-primary w-100">Login</button>
-    </form>
-    <p class="text-center mt-3">
-      Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
-    </p>
-    <p class="text-center mt-3">
-      <a href="{% url 'password_reset' %}">Forgot your password?</a>
-    </p>
+  <div class="form-wrapper">
+    <div class="form-card">
+      <div class="card-body">
+        <div class="card shadow-sm p-4">
+          <h4 class="mb-3 text-center">Login</h4>
+          <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+          <p class="text-center mt-3">
+            Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
+          </p>
+          <p class="text-center mt-3">
+            <a href="{% url 'password_reset' %}">Forgot your password?</a>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 {% endblock %}

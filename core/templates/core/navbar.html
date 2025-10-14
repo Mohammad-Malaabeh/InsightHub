@@ -1,47 +1,45 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-  <div class="container">
-    <a class="navbar-brand" href="{% url 'dashboard' %}">InsightHub</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+  <div class="container d-flex align-items-center">
+    <!-- Left: Brand -->
+    <a class="navbar-brand mb-2" href="{% url 'dashboard' %}">InsightHub</a>
 
+    <!-- ✅ CSS-only Hamburger Toggle (Moved to Right) -->
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" />
+    <label for="nav-toggle" class="nav-toggle-btn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </label>
+
+    <!-- ✅ Navbar Links -->
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'project_list' %}">Projects</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'post_list' %}">Posts</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'project_list' %}">Projects</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'post_list' %}">Posts</a></li>
         {% if user.is_authenticated and user.is_staff %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
-          </li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>
         {% endif %}
       </ul>
 
-      {% if user.role == 'Admin' %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'manage_users' %}">Manage Users</a>
-        </li>
-      {% elif user.role == 'Manager' %}
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'manager_reports' %}">Reports</a>
-        </li>
-      {% endif %}
-      <ul class="navbar-nav">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        {% if user.role == 'Admin' %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'manage_users' %}">Manage Users</a></li>
+        {% elif user.role == 'Manager' %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'manager_reports' %}">Reports</a></li>
+        {% endif %}
+
         {% if user.is_authenticated %}
-          <li class="nav-item nav-link">
-            <span class="navbar-text me-3">Welcome, {{ user.username }}</span>
-          </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            <a class="nav-link d-flex align-items-center" href="{% url 'profile' %}">
+              <span class="nav-ico" aria-hidden="true">👤</span>
+              <span class="nav-text">Profile</span>
+            </a>
           </li>
+          <li class="nav-item nav-link"><span class="navbar-text me-3">Welcome, {{ user.username }}</span></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
         {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'login' %}">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
-          </li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Sign Up</a></li>
         {% endif %}
       </ul>
     </div>

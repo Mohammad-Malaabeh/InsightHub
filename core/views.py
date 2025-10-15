@@ -113,7 +113,7 @@ def project_create(request):
         if form.is_valid():
             project = form.save(commit=False)
 
-            default_owner = User.objects.first()
+            default_owner = request.user
             project.owner = default_owner
             project.save()
             return redirect('project_list')
@@ -203,7 +203,7 @@ def post_create(request):
         if form.is_valid():
             post = form.save(commit=False)
 
-            default_owner = User.objects.first()
+            default_owner = request.user
             post.owner = default_owner
             post.save()
 

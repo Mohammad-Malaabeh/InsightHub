@@ -218,28 +218,36 @@ def post_create(request):
         form = PostForm()
     return render(request, 'core/post_form.html', {'form': form})
 
+from django.http import HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
+
 @login_required
 def post_update(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    if request.method == 'POST':
+    if post.owner_id != request.user.id:
+        raise PermissionDenied("You are not allowed to edit this post.")
+
+    if request.method == "POST":
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('post_list')
+            return redirect("post_list")
     else:
         form = PostForm(instance=post)
-    return render(request, 'core/post_form.html', {'form': form})
+    return render(request, "core/post_form.html", {"form": form})
 
 @login_required
 @require_http_methods(["GET", "POST"])
 def post_delete(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+    if post.owner_id != request.user.id:
+        raise PermissionDenied("You are not allowed to delete this post.")
 
     if request.method == "POST":
         post.delete()
-        return redirect('post_list')
+        return redirect("post_list")
 
-    return render(request, 'core/post_confirm_delete.html', {'post': post})
+    return render(request, "core/post_confirm_delete.html", {"post": post})
 
 @login_required
 def like_post(request, post_id):

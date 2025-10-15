@@ -41,7 +41,7 @@ A compact, full‑stack Django app to practice:
 
 Getting Started
 
-Live Demo (if deployed)
+Live Demo 
 
 
 - URL: # missing
@@ -125,7 +125,7 @@ Features
 - Projects & Tasks
 	- CRUD for projects and tasks
 
-	- Task attachments, assignee (optional)
+	- Task attachments, assignee
 
 	- Staff see their own; managers/admins see all
 
@@ -214,4 +214,4 @@ Author
 
 License
 
-- 
+- License © 2025 Mohammad Malabeh

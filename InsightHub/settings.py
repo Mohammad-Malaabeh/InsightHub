@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -36,7 +37,7 @@ AUTH_USER_MODEL = "core.User"
 # Static files
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
-
+STATIC_ROOT = Path(BASE_DIR, 'staticfiles')
 
 # Auth redirects
 LOGIN_URL = "login"
@@ -115,16 +116,26 @@ WSGI_APPLICATION = "InsightHub.wsgi.application"
 
 # Database
 DB_ENGINE = os.getenv("DB_ENGINE", "django.db.backends.postgresql")
-DATABASES = {
-    "default": {
-        "ENGINE": DB_ENGINE,
-        "NAME": os.getenv("DB_NAME", ""),
-        "USER": os.getenv("DB_USER", ""),
-        "PASSWORD": os.getenv("DB_PASSWORD", ""),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=not DEBUG
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": os.getenv("DB_NAME", ""),
+            "USER": os.getenv("DB_USER", ""),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+        }
+    }
 
 # Password validators
 AUTH_PASSWORD_VALIDATORS = [
@@ -140,3 +151,6 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+ALLOWED_HOSTS += ['.onrender.com','localhost','127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']

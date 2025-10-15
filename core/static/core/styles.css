@@ -652,6 +652,18 @@ body {
     border-top: 1px solid var(--bs-border-color);
 }
 
+.table-responsive-sm {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 785px) {
+    .table-responsive-sm {
+        overflow-x: visible;
+    }
+}
+
 /* Forms */
 input[type="text"],
 input[type="email"],

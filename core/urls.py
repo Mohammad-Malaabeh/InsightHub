@@ -16,6 +16,8 @@ urlpatterns = [
     # Manager/Admin Reports
     path('manager/reports/', views.manager_reports, name='manager_reports'),
     path('manage-users/', views.manage_users, name='manage_users'),
+    path('manage-users/<int:user_id>/toggle-role/', views.toggle_user_role, name='toggle_user_role'),
+    path('manage-users/<int:user_id>/delete/', views.delete_user, name='delete_user'),
 
     # Tasks
     path('projects/<int:project_id>/tasks/', views.task_list, name='task_list'),

@@ -3,23 +3,59 @@
 {% block content %}
 <div class="container mt-4">
   <h2>Manage Users</h2>
-  <table class="table">
+  <table class="table align-middle">
     <thead>
       <tr>
         <th>ID</th>
         <th>Username</th>
         <th>Email</th>
+        <th>Role</th>
+        <th style="width: 280px;">Actions</th>
       </tr>
     </thead>
     <tbody>
-      {% for user in users %}
+      {% for u in users %}
       <tr>
-        <td>{{ user.id }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.email }}</td>
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td>
+          <span class="badge {% if u.role == 'Manager' %}bg-primary{% elif u.role == 'Admin' %}bg-danger{% else %}bg-secondary{% endif %}">
+            {{ u.role }}
+          </span>
+        </td>
+        <td>
+          {% if user.role == 'Admin' %}
+            <div class="d-flex gap-2">
+              {# Toggle role between Manager and Staff; do not allow toggling Admins #}
+              {% if u.role != 'Admin' %}
+                <form method="post" action="{% url 'toggle_user_role' u.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-primary">
+                    Set {% if u.role == 'Manager' %}Staff{% else %}Manager{% endif %}
+                  </button>
+                </form>
+              {% else %}
+                <button class="btn btn-sm btn-outline-secondary" disabled>Admin</button>
+              {% endif %}
+
+              {# Delete: allowed only if target user is not Admin and not the current user #}
+              {% if u.role != 'Admin' and u.id != user.id %}
+                <form method="post" action="{% url 'delete_user' u.id %}" onsubmit="return confirm('Delete user {{ u.username }}? This cannot be undone.');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              {% else %}
+                <button class="btn btn-sm btn-outline-secondary" disabled>Delete</button>
+              {% endif %}
+            </div>
+          {% else %}
+            <span class="text-muted">No actions</span>
+          {% endif %}
+        </td>
       </tr>
       {% empty %}
-      <tr><td colspan="3">No users found.</td></tr>
+      <tr><td colspan="5">No users found.</td></tr>
       {% endfor %}
     </tbody>
   </table>

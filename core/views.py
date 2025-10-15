@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 from django.contrib.auth.decorators import login_required
 from .decorators import admin_required, manager_or_admin_required
 from .models import Project, Task, Post, Tag, User
 from .forms import ProjectForm, TaskForm, PostForm, SignUpForm, LoginForm, ProfileForm
+from django.contrib import messages
 
 #--- Authentication imports ---
 def signup_view(request):
@@ -57,6 +58,40 @@ def manager_reports(request):
 def manage_users(request):
     users = User.objects.all()
     return render(request, 'core/manage_users.html', {'users': users})
+
+
+@admin_required
+@require_POST
+def toggle_user_role(request, user_id):
+    target = get_object_or_404(User, id=user_id)
+    # Do not allow modifying Admins
+    if target.role == 'Admin':
+        messages.error(request, "Cannot change role of an Admin.")
+        return redirect('manage_users')
+    # Toggle Manager <-> Staff
+    target.role = 'Staff' if target.role == 'Manager' else 'Manager'
+    # Persist flags coherently with your User.save() logic
+    # Non-admin roles should not be superuser; keep staff flag as appropriate
+    target.is_superuser = False
+    target.is_staff = (target.role == 'Manager')
+    target.save()
+    messages.success(request, f"Updated {target.username}'s role to {target.role}.")
+    return redirect('manage_users')
+
+@admin_required
+@require_POST
+def delete_user(request, user_id):
+    target = get_object_or_404(User, id=user_id)
+    if target.role == 'Admin':
+        messages.error(request, "Cannot delete an Admin.")
+        return redirect('manage_users')
+    if target.id == request.user.id:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('manage_users')
+    target.delete()
+    messages.success(request, "User deleted.")
+    return redirect('manage_users')
+
 
 
 # --- Project Views ---
@@ -203,12 +238,11 @@ def post_delete(request, post_id):
 @login_required
 def like_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    u = User.objects.first()
-    if u:
-        if u in post.liked_by.all():
-            post.liked_by.remove(u)
-        else:
-            post.liked_by.add(u)
+    u = request.user
+    if u in post.liked_by.all():
+        post.liked_by.remove(u)
+    else:
+        post.liked_by.add(u)
     return redirect('post_list')
 
 @login_required

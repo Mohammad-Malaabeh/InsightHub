@@ -6,6 +6,21 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .models import Project, Task, Post
 
+
+def email_user(recipient_email: str, subject: str, message: str) -> None:
+    if not recipient_email:
+        return
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [recipient_email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
 def push_to_user(user_id, payload):
     try:
         layer = get_channel_layer()
@@ -44,26 +59,78 @@ def project_deleted(sender, instance, **kwargs):
 @receiver(post_save, sender=Task)
 def task_created_or_updated(sender, instance, created, **kwargs):
     payload = {
-        "kind": "task", "event": "created" if created else "updated",
-        "task_id": instance.id, "title": instance.title, "completed": instance.completed,
-        "project_id": instance.project_id, "project_name": instance.project.name,
+        "kind": "task",
+        "event": "created" if created else "updated",
+        "task_id": instance.id,
+        "title": instance.title,
+        "completed": instance.completed,
+        "project_id": instance.project_id,
+        "project_name": instance.project.name,
     }
+
+    # WebSocket notifications
     push_to_user(instance.project.owner_id, payload)
-    if getattr(instance, 'assignee_id', None):
+    if getattr(instance, "assignee_id", None):
         push_to_user(instance.assignee_id, payload)
-    notify_admin_by_email(
-        f"[InsightHub] Task {'created' if created else 'updated'}: {instance.title}",
-        f"Project: {instance.project.name}\nTask: {instance.title}\nCompleted: {instance.completed}\nOwner: {instance.project.owner.username} ({instance.project.owner.email})\n",
+
+    # Email subject and message (shared)
+    subject = f"[InsightHub] Task {'created' if created else 'updated'}: {instance.title}"
+    message = (
+        f"Project: {instance.project.name}\n"
+        f"Task: {instance.title}\n"
+        f"Completed: {instance.completed}\n"
+        f"Owner: {instance.project.owner.username} ({instance.project.owner.email})\n"
+        f"Assignee: {getattr(instance.assignee, 'username', '—')} "
+        f"({getattr(instance.assignee, 'email', '—')})\n"
     )
+
+    notify_admin_by_email(subject, message)
+
+    owner_email = getattr(instance.project.owner, "email", None)
+    email_user(owner_email, subject, message)
+
+    assignee_email = getattr(instance.assignee, "email", None)
+    email_user(assignee_email, subject, message)
 
 @receiver(post_delete, sender=Task)
 def task_deleted(sender, instance, **kwargs):
     owner_id = getattr(instance.project, "owner_id", None) if getattr(instance, "project", None) else None
     if owner_id:
-        push_to_user(owner_id, {"kind": "task", "event": "deleted", "task_id": instance.id, "title": instance.title, "project_id": getattr(instance, "project_id", None)})
-    if getattr(instance, 'assignee_id', None):
-        push_to_user(instance.assignee_id, {"kind": "task", "event": "deleted", "task_id": instance.id, "title": instance.title})
-    notify_admin_by_email(f"[InsightHub] Task deleted: {instance.title}", f"Task: {instance.title}\nProject ID: {getattr(instance, 'project_id', None)}\n")
+        push_to_user(
+            owner_id,
+            {
+                "kind": "task",
+                "event": "deleted",
+                "task_id": instance.id,
+                "title": instance.title,
+                "project_id": getattr(instance, "project_id", None),
+            },
+        )
+    if getattr(instance, "assignee_id", None):
+        push_to_user(
+            instance.assignee_id,
+            {
+                "kind": "task",
+                "event": "deleted",
+                "task_id": instance.id,
+                "title": instance.title,
+            },
+        )
+    subject = f"[InsightHub] Task deleted: {instance.title}"
+    message = (
+        f"Task: {instance.title}\n"
+        f"Project ID: {getattr(instance, 'project_id', None)}\n"
+    )
+
+    notify_admin_by_email(subject, message)
+
+    owner_email = getattr(getattr(instance, "project", None), "owner", None)
+    owner_email = getattr(owner_email, "email", None)
+    email_user(owner_email, subject, message)
+
+    assignee_email = getattr(instance, "assignee", None)
+    assignee_email = getattr(assignee_email, "email", None)
+    email_user(assignee_email, subject, message)
 
 # Post
 @receiver(post_save, sender=Post)

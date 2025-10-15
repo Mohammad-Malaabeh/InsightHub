@@ -45,7 +45,7 @@ LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "login"
 
 # Email
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "InsightHub <malaabehmohamed@gmail.com>")
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587") or 587)
@@ -129,11 +129,11 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": DB_ENGINE,
-            "NAME": os.getenv("DB_NAME", ""),
-            "USER": os.getenv("DB_USER", ""),
-            "PASSWORD": os.getenv("DB_PASSWORD", ""),
-            "HOST": os.getenv("DB_HOST", "localhost"),
-            "PORT": os.getenv("DB_PORT", "5432"),
+            "NAME": 'insighthub_db',
+            "USER": 'postgres',
+            "PASSWORD": 'bbvjolw3qsrvq',
+            "HOST": "localhost",
+            "PORT": '5432',
         }
     }
 

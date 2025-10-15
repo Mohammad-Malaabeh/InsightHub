@@ -44,14 +44,53 @@ Getting Started
 Live Demo 
 
 
-- URL: # missing
+- URL: https://insighthub-f9u1.onrender.com
 
 Planning Materials
 
 
-- ERD: # missing
+- ERD: 
 
-- User stories / tasks: # missing
+Entities:
+
+- User (id, email, username, role, password, is_staff, is_superuser, created_at, date_joined)
+
+- Tag (id, name)
+
+- Post (id, title, content, owner_id, created_at, updated_at)
+
+- Project (id, name, owner_id, created_at)
+
+- Task (id, title, description, completed, attachment, project_id, assignee_id, created_at)
+
+
+- Relationships:
+
+- A User → can own many Projects
+
+- A Project → has many Tasks
+
+- A Task → can be assigned to one User (optional)
+
+- A User → can own many Posts
+
+- A Post → can have many Tags
+
+- A Tag → can belong to many Posts
+
+- A Post → can be liked by many Users
+
+- A User → can like many Posts
+
+- User stories / tasks: 
+
+- Visitor		As a new user, I can register and verify my email to activate my account.
+- Staff			As a user, I can log in using my email and password.
+- Staff			As a user, I can reset my password via email if I forget it.
+- Manager		As a staff member, I can create and manage my own projects and tasks.
+- Admin			As an admin, I can manage all users, posts, and projects.
+- Staff			As a user, I can create posts and add tags to them
+- Staff			As a user, I can like posts and see trending posts.
 
 Local Setup
 

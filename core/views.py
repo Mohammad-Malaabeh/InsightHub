@@ -9,15 +9,21 @@ from django.contrib import messages
 
 #--- Authentication imports ---
 def signup_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
+            # If this is the first user ever, promote to Admin
+            if User.objects.count() == 1:
+                user.role = "Admin"
+                user.is_staff = True
+                user.is_superuser = True
+                user.save()
             login(request, user)
-            return redirect('project_list')
+            return redirect("project_list")
     else:
         form = SignUpForm()
-    return render(request, 'core/signup.html', {'form': form})
+    return render(request, "core/signup.html", {"form": form})
 
 def login_view(request):
     if request.method == 'POST':
